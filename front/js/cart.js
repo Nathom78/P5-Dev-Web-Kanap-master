@@ -31,6 +31,27 @@ let priceUnitary = new Array;
 let totalQuantityItem = 0;
 let quantityItem = [];
 
+function printQuantityAndPrice () {
+    totalQuantityItem = 0;
+    priceTotal = 0;
+    let allQuantityElement = document.getElementsByClassName("itemQuantity");
+    console.log(priceUnitary);
+    
+
+    /* lecture des élements du dom (de la page HTML) */
+    for (let numberOfArticle = 0; numberOfArticle < localStorage.length ; numberOfArticle++) {
+
+        let quantityOfOne = allQuantityElement[numberOfArticle].value;
+        totalQuantityItem += Number(quantityOfOne);      
+        priceTotal += (Number (priceUnitary[numberOfArticle]) * Number(quantityOfOne));  
+    }
+
+       
+    document.getElementById("totalQuantity").innerText = totalQuantityItem;
+    document.getElementById("totalPrice").innerText = priceTotal;  
+   
+}
+
 /* Boucle en fonction du nombre d'articles stocké dans le localStorage */
 for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {
     
@@ -165,26 +186,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
 }
 printQuantityAndPrice ();
 
-function printQuantityAndPrice () {
-    totalQuantityItem = 0;
-    priceTotal = 0;
-    let allQuantityElement = document.getElementsByClassName("itemQuantity");
-    console.log(priceUnitary);
-    
 
-    /* lecture des élements du dom (de la page HTML) */
-    for (let numberOfArticle = 0; numberOfArticle < localStorage.length ; numberOfArticle++) {
-
-        let quantityOfOne = allQuantityElement[numberOfArticle].value;
-        totalQuantityItem += Number(quantityOfOne);      
-        priceTotal += (Number (priceUnitary[numberOfArticle]) * Number(quantityOfOne));  
-    }
-
-       
-    document.getElementById("totalQuantity").innerText = totalQuantityItem;
-    document.getElementById("totalPrice").innerText = priceTotal;  
-   
-}
 
 
    
