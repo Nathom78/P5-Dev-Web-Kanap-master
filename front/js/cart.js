@@ -1,39 +1,39 @@
+/*  <article class="cart__item" data-id="{product-ID}" data-color="{product-color}">
+<div class="cart__item__img">
+  <img src="../images/product01.jpg" alt="Photographie d'un canapé">
+</div>
+<div class="cart__item__content">
+  <div class="cart__item__content__description">
+    <h2>Nom du produit</h2>
+    <p>Vert</p>
+    <p>42,00 €</p>
+  </div>
+  <div class="cart__item__content__settings">
+    <div class="cart__item__content__settings__quantity">
+      <p>Qté : </p>
+      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">
+    </div>
+    <div class="cart__item__content__settings__delete">
+      <p class="deleteItem">Supprimer</p>
+    </div>
+  </div>
+</div>
+</article> */
+
 /* Affichage des articles du panier */
 // 1er récupération des informations d'un produit par ordre du localStorage (id, couleur, quantité)
 // Avec Création des articles (affichage)
 // 2éme récupération des information dans l'API ( prix, image, nom)
 
-console.log(localStorage);
+
 let priceTotal = 0 ;
-let priceUnitaire = [0];
-let totalQuantityItem =0;
-let quantityItem = [0];
+let priceUnitary = new Array;
+let totalQuantityItem = 0;
+let quantityItem = [];
 
-function printQuantityAndPrice () {
-    totalQuantityItem = 0;
-    priceTotal = 0;
-    let allQuantityElement = document.getElementsByClassName("itemQuantity");
-    let priceUnitaireInner;
-
-    /* lecture des élements du dom (de la page HTML) */
-    for (let numberOfArticle = 0; numberOfArticle < allQuantityElement.length; numberOfArticle++) {
-        
-        let quantityOfOne = allQuantityElement[numberOfArticle].value;
-        totalQuantityItem += Number(quantityOfOne);
-        
-        priceUnitaireInner = document.querySelectorAll("article div.cart__item__content__description > p + p");
-        let priceUnitaire = priceUnitaireInner[1];
-        //priceTotal += priceUnitaire.match(/(\d+)/);   
-        console.log(priceUnitaire);
-    }
-
-       
-    document.getElementById("totalQuantity").innerText = totalQuantityItem; 
-    document.getElementById("totalPrice").innerText = priceTotal;  
-   
-  }
 /* Boucle en fonction du nombre d'articles stocké dans le localStorage */
 for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {
+    
     
     // Récupération des données de l'objet du localStorage ( la paire key/valeurs )
     // avec déclaration des variables globale de la boucle et functions
@@ -113,6 +113,8 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
             
             let imgApi = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] div.cart__item__img"); /* Affichage de l'image dans le HTML */
             let image = document.createElement('img');
+            
+
             image.alt = value.altTxt; 
             image.src = value.imageUrl;
             imgApi.appendChild(image);
@@ -123,6 +125,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
 
             document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] div.cart__item__content__description > p").innerHTML = "Couleur choisie: " + objKeyJson.color; /* Affichage de la couleur depuis le localstorage*/
             
+            priceUnitary.push(value.price);
             
             })          
              
@@ -144,7 +147,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         localStorage.setItem(nomKeyObj, ObjModify);
         quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity);
         printQuantityAndPrice (); /* Mise à jour de la quantity affiché */
-        console.log(localStorage);
+        
     }
 
     // 3bis - delete un article
@@ -155,17 +158,32 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         let articleToDelete = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"']");
         document.getElementById("cart__items").removeChild(articleToDelete);
         localStorage.removeItem(nomKeyObj);
-        quantityItem.splice()
-        printQuantityAndPrice;
-        console.log(localStorage);
+        quantityItem.pop();
+        priceUnitary.pop();
+        printQuantityAndPrice ();     
+    }
+}
+printQuantityAndPrice ();
+
+function printQuantityAndPrice () {
+    totalQuantityItem = 0;
+    priceTotal = 0;
+    let allQuantityElement = document.getElementsByClassName("itemQuantity");
+    console.log(priceUnitary);
     
+
+    /* lecture des élements du dom (de la page HTML) */
+    for (let numberOfArticle = 0; numberOfArticle < localStorage.length ; numberOfArticle++) {
+
+        let quantityOfOne = allQuantityElement[numberOfArticle].value;
+        totalQuantityItem += Number(quantityOfOne);      
+        priceTotal += (Number (priceUnitary[numberOfArticle]) * Number(quantityOfOne));  
     }
 
-    printQuantityAndPrice ();
-
-    
-    
-
+       
+    document.getElementById("totalQuantity").innerText = totalQuantityItem;
+    document.getElementById("totalPrice").innerText = priceTotal;  
+   
 }
 
 
