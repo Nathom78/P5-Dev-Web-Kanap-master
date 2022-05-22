@@ -1,49 +1,23 @@
-/*  <article class="cart__item" data-id="{product-ID}" data-color="{product-color}">
-<div class="cart__item__img">
-  <img src="../images/product01.jpg" alt="Photographie d'un canapé">
-</div>
-<div class="cart__item__content">
-  <div class="cart__item__content__description">
-    <h2>Nom du produit</h2>
-    <p>Vert</p>
-    <p>42,00 €</p>
-  </div>
-  <div class="cart__item__content__settings">
-    <div class="cart__item__content__settings__quantity">
-      <p>Qté : </p>
-      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">
-    </div>
-    <div class="cart__item__content__settings__delete">
-      <p class="deleteItem">Supprimer</p>
-    </div>
-  </div>
-</div>
-</article> */
-
-/* Affichage des articles du panier */
-// 1er récupération des informations d'un produit par ordre du localStorage (id, couleur, quantité)
-// Avec Création des articles (affichage)
-// 2éme récupération des information dans l'API ( prix, image, nom)
-
 
 let priceTotal = 0 ;
-let priceUnitary = new Array;
+var priceUnitary = [];
 let totalQuantityItem = 0;
 let quantityItem = [];
 
 function printQuantityAndPrice () {
+    console.log(priceUnitary);
     totalQuantityItem = 0;
     priceTotal = 0;
-    let allQuantityElement = document.getElementsByClassName("itemQuantity");
-    console.log(priceUnitary);
-    
-
-    /* lecture des élements du dom (de la page HTML) */
+    //let allQuantityElement = document.getElementsByClassName("itemQuantity");
+    //let allpriceUnitary = document.getElementsByClassName("itemPrice");
+            
     for (let numberOfArticle = 0; numberOfArticle < localStorage.length ; numberOfArticle++) {
-
-        let quantityOfOne = allQuantityElement[numberOfArticle].value;
-        totalQuantityItem += Number(quantityOfOne);      
-        priceTotal += (Number (priceUnitary[numberOfArticle]) * Number(quantityOfOne));  
+        
+        //let quantityOfOne = allQuantityElement[numberOfArticle].value;         
+        
+        totalQuantityItem += quantityItem [numberOfArticle];
+        //priceTotal += priceOfOne * quantityOfOne;
+        priceTotal += priceUnitary[numberOfArticle] * quantityItem[numberOfArticle];
     }
 
        
@@ -51,6 +25,10 @@ function printQuantityAndPrice () {
     document.getElementById("totalPrice").innerText = priceTotal;  
    
 }
+/* Affichage des articles du panier */
+// 1er récupération des informations d'un produit par ordre du localStorage (id, couleur, quantité)
+// Avec Création des articles (affichage)
+// 2éme récupération des information dans l'API ( prix, image, nom)
 
 /* Boucle en fonction du nombre d'articles stocké dans le localStorage */
 for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {
@@ -63,6 +41,8 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     let objKey = localStorage.getItem(nomKeyObj);
     let objKeyJson = JSON.parse(objKey); // pour les keys id, color, et quantity.
     quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity);
+    
+    
 
     function createByClass (classAdd, parentLien, typeCreate) {
     
@@ -93,7 +73,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     
     createByClass ('', 'cart__item__content__description', 'p');                                            /* couleur */
 
-    createByClass ('', 'cart__item__content__description', 'p');                                            /* prix unitaire */
+    createByClass ('itemPrice', 'cart__item__content__description', 'p');                                            /* prix unitaire */
     
     createByClass ('cart__item__content__settings', 'cart__item__content', 'div');                      /* settings */
 
@@ -122,7 +102,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     // 2éme récuperation des informations du produit dans l'API et affichage des differentes valeurs
 
     let urlProduct = "http://localhost:3000/api/products/" + objKeyJson.id;
-
+    
     fetch (urlProduct)
         .then (function(res) {
             if (res.ok) {
@@ -146,8 +126,9 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
 
             document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] div.cart__item__content__description > p").innerHTML = "Couleur choisie: " + objKeyJson.color; /* Affichage de la couleur depuis le localstorage*/
             
-            priceUnitary.push(value.price);
-            
+            priceUnitary[keyLocalStorage] = Number(value.price);
+            printQuantityAndPrice ();        
+
             })          
              
 
@@ -155,10 +136,13 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
             console.log("Il y a eu un problème avec l\'opération fetch:" + err.message );
         });
 
+    
     // 3éme étape - Modification de la quantity
 
     let inputChange = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] input[name='itemQuantity']");
     inputChange.addEventListener('change', updateValue);
+    
+  
 
     function updateValue () {
         /* mise à jour du localstorage */
@@ -166,9 +150,9 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         objKeyJson.quantity = inputChange.value;
         let ObjModify = JSON.stringify(objKeyJson);
         localStorage.setItem(nomKeyObj, ObjModify);
+
         quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity);
-        printQuantityAndPrice (); /* Mise à jour de la quantity affiché */
-        
+        printQuantityAndPrice (); /* Mise à jour de la quantity affiché */        
     }
 
     // 3bis - delete un article
@@ -180,11 +164,14 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         document.getElementById("cart__items").removeChild(articleToDelete);
         localStorage.removeItem(nomKeyObj);
         quantityItem.pop();
-        priceUnitary.pop();
+        //priceUnitary.pop();
+
+        window.location.reload();
         printQuantityAndPrice ();     
-    }
+    }    
+
 }
-printQuantityAndPrice ();
+
 
 
 
@@ -193,12 +180,3 @@ printQuantityAndPrice ();
 
 
 
-// 4éme Total /* soit récuperer les élements depuis le document, soit depuis LocalStorage et API
-
-
-
-
-/* for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {
-
-
-} */

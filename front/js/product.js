@@ -58,14 +58,19 @@ function onClickStorage () {
         quantity : 0,
         color : ""
      }
-    if (colorObjKanap != "") {
+    
+    if (colorObjKanap == "") {
+        alert ("Choisisser une couleur");
+    }
+    if (document.getElementById("quantity").value > 100 || document.getElementById("quantity").value == 0){                
+        alert ("Quantité maximum de 100 articles et minimu de 1");            
+    }
+    if (colorObjKanap != "" && document.getElementById("quantity").value <= 100) {
     
         if (objInLocalStorage === null) { /* test afin de savoir si le produit existe déja dans le panier */
             
             objArticle.id = idUrl;
-            if (document.getElementById("quantity").value > 100){
-                document.getElementById("quantity").value = 100;                
-            }
+            
             objArticle.quantity = document.getElementById("quantity").value; // création d'un objet avec un id, une quantité, et une couleur            
             objArticle.color = colorObjKanap;
             let ObjToStock = JSON.stringify(objArticle); // Stockage dans le localStorage
@@ -79,7 +84,7 @@ function onClickStorage () {
             if (objInLocalStorageJSON.color == colorObjKanap) {             
 
                 objArticle.quantity = Number(document.getElementById("quantity").value ) + Number(objInLocalStorageJSON.quantity);
-                if (objArticle.quantity > 100 ) { objArticle.quantity = 100 } /* Quantité maximum de 100 */
+                
                 objArticle.id = idUrl;
                 objArticle.color = colorObjKanap;
 
