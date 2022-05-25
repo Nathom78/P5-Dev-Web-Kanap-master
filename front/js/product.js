@@ -51,8 +51,7 @@ boutonAddToCart.addEventListener('click', onClickStorage);
 function onClickStorage () {
     let colorObjKanap = document.getElementById("colors").value;  /* récuperation de la couleur et du nom sur la page */ 
     let nomObjKanap = document.getElementById("title").textContent + " " + colorObjKanap;    // Création du nom du produit (nom du canap + couleur) afin de différencier les produits de la même famille
-    let objInLocalStorage = localStorage.getItem(nomObjKanap);  
-    console.log("objInLocalStorage" + objInLocalStorage);
+    let objInLocalStorage = localStorage.getItem(nomObjKanap);      
     let objArticle = {
         id : "",
         quantity : 0,
@@ -63,7 +62,7 @@ function onClickStorage () {
         alert ("Choisisser une couleur");
     }
     if (document.getElementById("quantity").value > 100 || document.getElementById("quantity").value == 0){                
-        alert ("Quantité maximum de 100 articles et minimu de 1");            
+        alert ("Quantité maximum de 100 articles et minimum de 1");            
     }
     if (colorObjKanap != "" && document.getElementById("quantity").value <= 100) {
     

@@ -1,8 +1,16 @@
 
 let priceTotal = 0 ;
-var priceUnitary = [];
+let priceUnitary = [];
 let totalQuantityItem = 0;
 let quantityItem = [];
+let products = new Array(0);
+let contact = {
+       firstName: "",
+       lastName: "",
+       address: "",
+       city: "",
+       email: ""
+};
 
 function printQuantityAndPrice () {
     console.log(priceUnitary);
@@ -60,27 +68,27 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     article.classList.add('cart__item');
     article.setAttribute("data-id", objKeyJson.id);
     article.setAttribute("data-color", objKeyJson.color);
-    sectionCartItem.appendChild(article);                                                 /* Création de l'article */
+    sectionCartItem.appendChild(article);  /* Création de l'article */
     
-
-    createByClass ("cart__item__img", "cart__item", "div");                                         /* Création de la 1ére div enfant pour l'image */
-     
-    createByClass ('cart__item__content', 'cart__item', 'div');                                     /* Création de la 2éme div enfant pour le contenue */
-    
-    createByClass ('cart__item__content__description', 'cart__item__content', 'div');                   /* description */
-
-    createByClass ('', 'cart__item__content__description', 'h2');                                           /* Nom du produit */
-    
-    createByClass ('', 'cart__item__content__description', 'p');                                            /* couleur */
-
-    createByClass ('itemPrice', 'cart__item__content__description', 'p');                                            /* prix unitaire */
-    
-    createByClass ('cart__item__content__settings', 'cart__item__content', 'div');                      /* settings */
-
-    createByClass ('cart__item__content__settings__quantity', 'cart__item__content__settings', 'div');      /*  div setting quantity */
-
-    createByClass ('', 'cart__item__content__settings__quantity', 'p');                                         /* Affichage de la qty */
-
+    /* Création de la 1ére div enfant pour l'image */
+    createByClass ("cart__item__img", "cart__item", "div");   
+    /* Création de la 2éme div enfant pour le contenue */    
+    createByClass ('cart__item__content', 'cart__item', 'div');    
+    /* description */
+    createByClass ('cart__item__content__description', 'cart__item__content', 'div'); 
+    /* Nom du produit */
+    createByClass ('', 'cart__item__content__description', 'h2');  
+    /* couleur */
+    createByClass ('', 'cart__item__content__description', 'p');                                            
+    /* prix unitaire */
+    createByClass ('itemPrice', 'cart__item__content__description', 'p');                                            
+    /* settings */
+    createByClass ('cart__item__content__settings', 'cart__item__content', 'div');                      
+    /*  div setting quantity */
+    createByClass ('cart__item__content__settings__quantity', 'cart__item__content__settings', 'div');      
+    /* Affichage de la qty */
+    createByClass ('', 'cart__item__content__settings__quantity', 'p');                                         
+    /* input itemquantity avec ces attributs*/
     let pointingForInput = document.getElementsByClassName('cart__item__content__settings__quantity');      
     let quantityInput = document.createElement('input');
     quantityInput.classList.add('itemQuantity');
@@ -88,11 +96,10 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     quantityInput.setAttribute('type', 'number');
     quantityInput.setAttribute('min', 1);
     quantityInput.setAttribute('max', 100);
-    quantityInput.setAttribute("value", objKeyJson.quantity);                                      /* Affichage de la quantity depuis le localStorage */
-    pointingForInput[keyLocalStorage].appendChild(quantityInput);                                               /* Changer la qty */
-
-    createByClass ('cart__item__content__settings__delete', 'cart__item__content__settings', 'div');        /*  div delete */ 
-        
+    quantityInput.setAttribute("value", objKeyJson.quantity);  /* Affichage de la quantity depuis le localStorage */
+    pointingForInput[keyLocalStorage].appendChild(quantityInput);  
+    /*  div delete */ 
+    createByClass ('cart__item__content__settings__delete', 'cart__item__content__settings', 'div');        
     let divItemDelete = document.getElementsByClassName('cart__item__content__settings__delete');
     let pDelete = document.createElement('p');
     pDelete.textContent = 'Supprimer';
@@ -151,8 +158,8 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         let ObjModify = JSON.stringify(objKeyJson);
         localStorage.setItem(nomKeyObj, ObjModify);
 
-        quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity);
-        printQuantityAndPrice (); /* Mise à jour de la quantity affiché */        
+        quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity); /* Mise à jour de la quantity affiché */
+        printQuantityAndPrice ();         
     }
 
     // 3bis - delete un article
@@ -163,20 +170,154 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         let articleToDelete = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"']");
         document.getElementById("cart__items").removeChild(articleToDelete);
         localStorage.removeItem(nomKeyObj);
-        quantityItem.pop();
-        //priceUnitary.pop();
-
-        window.location.reload();
+        quantityItem.splice(keyLocalStorage,1);        
+        priceUnitary.splice(keyLocalStorage,1);
+        
         printQuantityAndPrice ();     
     }    
 
+    products[keyLocalStorage] = String(objKeyJson.id);
+
+}
+//
+/* 4éme étape remplir les champs des formulaires */ 
+//
+
+/* function qui change la première lettre en majuscule */
+function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
+
+/* Champ Prénom */
+let formFirstName = document.getElementById("firstName");
+formFirstName.addEventListener('change', validateFirstName);
+
+function validateFirstName (e){
+    let eltForPrint = document.getElementById("firstNameErrorMsg");
+    let contentForm = e.target.value;
+    let maskLetter = /[^A-Za-z-]/g; // exclusion de tout sauf des lettres et -
+
+    if (contentForm.match(maskLetter) != null) {        
+        eltForPrint.innerText = "Veuillez entrer un prénom valide";
+    } else {
+        eltForPrint.innerText = "";
+        newText = strUcFirst(contentForm);
+        e.target.value = newText;
+        contact.firstName = String(newText); /* création de la clé prénom de l'objet contact */
+    }
+
+}
+/* champ Nom */
+let formLastName = document.getElementById("lastName");
+formLastName.addEventListener('change', validateLastName)
+
+function validateLastName (e){
+    let eltForPrint = document.getElementById("lastNameErrorMsg");
+    let contentForm = e.target.value;
+    let maskLetter = /[^A-Za-z]/g; // exclusion de tout sauf des lettres
+
+    if (contentForm.match(maskLetter) != null) {        
+        eltForPrint.innerText = "Veuillez entrer un nom valide";
+    } else {
+        eltForPrint.innerText = "";
+        newText = strUcFirst(contentForm);
+        e.target.value = newText;
+        contact.lastName = String(newText); /* création de la clé nom de l'objet contact */
+    }
+
 }
 
+/* champ Adresse  */
+let formAddress = document.getElementById("address");
+formAddress.addEventListener('change', validateAddress)
 
+function validateAddress (e){
+    let eltForPrint = document.getElementById("addressErrorMsg");
+    let contentForm = e.target.value;
+    let maskLetter = /[^0-9A-Za-z ]/g; // exclusion de tout sauf des lettres et des chiffres (et espace)
 
+    if (contentForm.match(maskLetter) != null) {        
+        eltForPrint.innerText = "Veuillez entrer une adresse valide";
+    } else {
+        eltForPrint.innerText = "";
+        contact.address = String(e.target.value); /* création de la clé adress de l'objet contact */
+    }
 
+}
 
-   
+/* champ Ville  */
+let formCity = document.getElementById("city");
+formCity.addEventListener('change', validateCity)
+
+function validateCity (e){
+    let eltForPrint = document.getElementById("cityErrorMsg");
+    let contentForm = e.target.value;
+    let maskLetter = /[^0-9A-Za-z ]/g; // exclusion de tout sauf des lettres et des chiffres (et espace)
+
+    if (contentForm.match(maskLetter) != null) {        
+        eltForPrint.innerText = "Veuillez entrer une ville et code postal valide";
+    } else {
+        eltForPrint.innerText = "";
+        contact.city = String(e.target.value); /* création de la clé city de l'objet contact */
+    }
+
+}
+
+/* champ Email  */
+let formEmail = document.getElementById("email");
+formEmail.addEventListener('change', validateemail)
+
+function validateemail (e){
+    let eltForPrint = document.getElementById("emailErrorMsg");
+    let contentForm = e.target.value;
+    let maskLetter = /^[a-z0-9\-_\.]+@[a-z0-9]+\.[a-z]{2,5}$/;  
+    valid = maskLetter.test(contentForm);
+    if (!valid) {        
+        eltForPrint.innerText = "Veuillez entrer un Email valide";
+    } else {
+        eltForPrint.innerText = "";
+        contact.email = String(e.target.value); /* création de la clé email de l'objet contact */
+    }
+}
+
+let buttonSubmit = document.getElementById("order");
+buttonSubmit.addEventListener('click', onClickSend)
+
+function onClickSend (e) {
+    
+    /* test qu'il y ai tous les champs */
+    if (contact.firstName != "" 
+        && contact.lastName != ""
+        && contact.address != "" 
+        && contact.city != ""
+        && contact.email != ""
+         ) {
+        /* POST à l'API avec envoie de l'objet order( contact + product ) avec récupération de la réponse orderId*/             
+        let order = {contact,products};
+        let orderJSON = JSON.stringify(order);
+
+        e.preventDefault(); /* afin de pouvoir sortir de la page */
+
+        fetch("http://localhost:3000/api/products/order", {
+            method: "POST",
+            headers: {        
+            'Content-Type': 'application/json'
+            },
+            body: orderJSON
+        })
+        .then(function(res) {
+            if (res.ok) {
+            return res.json();
+            }
+        })
+        .then(function(value) {
+            console.log(value);
+            document.location.href = 'confirmation.html?orderId=' + value.orderId /* ouverture de la page confirmation */
+        });
+    } else {
+        alert("Vous devez renseigner tous les champs !");        
+    }
+          
+}
+
 
 
 
