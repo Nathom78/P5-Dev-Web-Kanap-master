@@ -3,7 +3,7 @@ let priceTotal = 0 ;
 let priceUnitary = [];
 let totalQuantityItem = 0;
 let quantityItem = [];
-let products = new Array(0);
+let products = [];
 let contact = {
        firstName: "",
        lastName: "",
@@ -13,7 +13,6 @@ let contact = {
 };
 
 function printQuantityAndPrice () {
-    console.log(priceUnitary);
     totalQuantityItem = 0;
     priceTotal = 0;
     //let allQuantityElement = document.getElementsByClassName("itemQuantity");
@@ -71,13 +70,13 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     sectionCartItem.appendChild(article);  /* Création de l'article */
     
     /* Création de la 1ére div enfant pour l'image */
-    createByClass ("cart__item__img", "cart__item", "div");   
+    createByClass ("cart__item__img", "cart__item", "div");   /* ajoute un élement enfant html avec une class, le nom de la class (unique) du parent, et le type de l'élement 
     /* Création de la 2éme div enfant pour le contenue */    
     createByClass ('cart__item__content', 'cart__item', 'div');    
     /* description */
     createByClass ('cart__item__content__description', 'cart__item__content', 'div'); 
     /* Nom du produit */
-    createByClass ('', 'cart__item__content__description', 'h2');  
+    createByClass ('', 'cart__item__content__description', 'h2');  /* sans class ajouté */
     /* couleur */
     createByClass ('', 'cart__item__content__description', 'p');                                            
     /* prix unitaire */
@@ -134,8 +133,8 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
             document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] div.cart__item__content__description > p").innerHTML = "Couleur choisie: " + objKeyJson.color; /* Affichage de la couleur depuis le localstorage*/
             
             priceUnitary[keyLocalStorage] = Number(value.price);
-            printQuantityAndPrice ();        
-
+            
+            printQuantityAndPrice ();
             })          
              
 
@@ -176,7 +175,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         printQuantityAndPrice ();     
     }    
 
-    products[keyLocalStorage] = String(objKeyJson.id);
+    products[keyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products a envoyer à l'API */
 
 }
 //
@@ -282,19 +281,20 @@ let buttonSubmit = document.getElementById("order");
 buttonSubmit.addEventListener('click', onClickSend)
 
 function onClickSend (e) {
-    
-    /* test qu'il y ai tous les champs */
+    e.preventDefault();
+    /* test qu'il y ai tous les champs et au moins un produit dans le panier */
     if (contact.firstName != "" 
         && contact.lastName != ""
         && contact.address != "" 
         && contact.city != ""
         && contact.email != ""
-         ) {
-        /* POST à l'API avec envoie de l'objet order( contact + product ) avec récupération de la réponse orderId*/             
+        && products.length !== 0
+        ) {
+        /* POST à l'API avec envoie de l'objet order( contact + products ) avec récupération de la réponse orderId*/             
         let order = {contact,products};
         let orderJSON = JSON.stringify(order);
 
-        e.preventDefault(); /* afin de pouvoir sortir de la page */
+        
 
         fetch("http://localhost:3000/api/products/order", {
             method: "POST",
@@ -313,9 +313,13 @@ function onClickSend (e) {
             document.location.href = 'confirmation.html?orderId=' + value.orderId /* ouverture de la page confirmation */
         });
     } else {
-        alert("Vous devez renseigner tous les champs !");        
-    }
-          
+        
+        if (products.length !== 0) {
+            alert("Vous devez renseigner tous les champs !");
+        } else {
+            alert("Vous devez avoir au moins un article !");
+        }                   
+    }          
 }
 
 

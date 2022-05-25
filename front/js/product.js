@@ -44,8 +44,6 @@ fetch (urlProduct)
 let boutonAddToCart = document.getElementById("addToCart");
 boutonAddToCart.addEventListener('click', onClickStorage);
  
-// else AFFICHER "Choisissez une couleur" avant de clicker
-
 
 // Fonction enregistrement dans le localStorage 
 function onClickStorage () {
@@ -68,8 +66,7 @@ function onClickStorage () {
     
         if (objInLocalStorage === null) { /* test afin de savoir si le produit existe déja dans le panier */
             
-            objArticle.id = idUrl;
-            
+            objArticle.id = idUrl;            
             objArticle.quantity = document.getElementById("quantity").value; // création d'un objet avec un id, une quantité, et une couleur            
             objArticle.color = colorObjKanap;
             let ObjToStock = JSON.stringify(objArticle); // Stockage dans le localStorage
@@ -83,7 +80,10 @@ function onClickStorage () {
             if (objInLocalStorageJSON.color == colorObjKanap) {             
 
                 objArticle.quantity = Number(document.getElementById("quantity").value ) + Number(objInLocalStorageJSON.quantity);
-                
+                if (objArticle.quantity > 100) {
+                    objArticle.quantity = 100;
+                    alert("Quantité maximum atteinte");
+                }
                 objArticle.id = idUrl;
                 objArticle.color = colorObjKanap;
 
