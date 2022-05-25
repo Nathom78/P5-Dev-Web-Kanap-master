@@ -185,6 +185,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
 /* function qui change la première lettre en majuscule */
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 
+
 /* Champ Prénom */
 let formFirstName = document.getElementById("firstName");
 formFirstName.addEventListener('change', validateFirstName);
@@ -249,7 +250,6 @@ formCity.addEventListener('change', validateCity)
 function validateCity (e){
     let eltForPrint = document.getElementById("cityErrorMsg");
     let contentForm = e.target.value;
-    let maskLetter = /[^0-9A-Za-z ]/g; // exclusion de tout sauf des lettres et des chiffres (et espace)
 
     if (contentForm.match(maskLetter) != null) {        
         eltForPrint.innerText = "Veuillez entrer une ville et code postal valide";
@@ -268,7 +268,8 @@ function validateemail (e){
     let eltForPrint = document.getElementById("emailErrorMsg");
     let contentForm = e.target.value;
     let maskLetter = /^[a-z0-9\-_\.]+@[a-z0-9]+\.[a-z]{2,5}$/;  
-    valid = maskLetter.test(contentForm);
+    let valid = maskLetter.test(contentForm);
+
     if (!valid) {        
         eltForPrint.innerText = "Veuillez entrer un Email valide";
     } else {
