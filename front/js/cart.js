@@ -146,13 +146,21 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     // 3éme étape - Modification de la quantity
 
     let inputChange = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] input[name='itemQuantity']");
+    let quantityMaxInput = Number(inputChange.max);
+    let quantityMinInput = Number(inputChange.min);
     inputChange.addEventListener('change', updateValue);
-    
-  
 
     function updateValue () {
+                        
+        if (inputChange.value < quantityMinInput) {
+            inputChange.value = quantityMinInput;
+            alert ("Quantité minimum de "+quantityMinInput+" articles");
+        }
+        if (inputChange.value > quantityMaxInput ) { 
+            inputChange.value = quantityMaxInput;
+            alert ("Quantité maximum de "+quantityMaxInput+" articles");
+        }
         /* mise à jour du localstorage */
-        if (inputChange.value > 100 ) { inputChange.value = 100};
         objKeyJson.quantity = inputChange.value;
         let ObjModify = JSON.stringify(objKeyJson);
         localStorage.setItem(nomKeyObj, ObjModify);
@@ -250,6 +258,7 @@ formCity.addEventListener('change', validateCity)
 function validateCity (e){
     let eltForPrint = document.getElementById("cityErrorMsg");
     let contentForm = e.target.value;
+    let maskLetter = /[^A-Za-z-]/g; // exclusion de tout sauf des lettres et -
 
     if (contentForm.match(maskLetter) != null) {        
         eltForPrint.innerText = "Veuillez entrer une ville et code postal valide";
@@ -293,9 +302,7 @@ function onClickSend (e) {
         ) {
         /* POST à l'API avec envoie de l'objet order( contact + products ) avec récupération de la réponse orderId*/             
         let order = {contact,products};
-        let orderJSON = JSON.stringify(order);
-
-        
+        let orderJSON = JSON.stringify(order);        
 
         fetch("http://localhost:3000/api/products/order", {
             method: "POST",

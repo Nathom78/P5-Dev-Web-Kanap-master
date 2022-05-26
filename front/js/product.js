@@ -1,3 +1,6 @@
+let quantityMaxInput = Number(document.getElementById("quantity").max);
+let quantityMinInput = Number(document.getElementById("quantity").min);
+
 // 1ére étape Récupération de l'Id dans l'url 
 
 let urlParam = new URLSearchParams(document.location.search);
@@ -38,7 +41,22 @@ fetch (urlProduct)
         console.log("Il y a eu un problème avec l\'opération fetch:" + err.message );
     });
 
-// 3éme étape Ajouter au panier au moment du click SI UNE COULEUR a été choisie
+// 3éme étape vérifier si la quantité entré dans l'input est dans la fourchette
+
+document.getElementById("quantity").addEventListener("input", function() {
+    let v = parseInt(this.value);
+    if (v < quantityMinInput) {
+        this.value = quantityMinInput;
+        alert ("Quantité minimum de "+quantityMinInput+" articles");
+    }
+    if (v > quantityMaxInput) {
+        this.value = quantityMaxInput;
+        alert ("Quantité maximum de "+quantityMaxInput+" articles");    
+    }    
+  });
+
+// 4éme étape Ajouter au panier au moment du click SI UNE COULEUR a été choisie
+
 
 
 let boutonAddToCart = document.getElementById("addToCart");
@@ -46,23 +64,23 @@ boutonAddToCart.addEventListener('click', onClickStorage);
  
 
 // Fonction enregistrement dans le localStorage 
-function onClickStorage () {
+function onClickStorage (e) {
     let colorObjKanap = document.getElementById("colors").value;  /* récuperation de la couleur et du nom sur la page */ 
     let nomObjKanap = document.getElementById("title").textContent + " " + colorObjKanap;    // Création du nom du produit (nom du canap + couleur) afin de différencier les produits de la même famille
     let objInLocalStorage = localStorage.getItem(nomObjKanap);      
     let objArticle = {
         id : "",
-        quantity : 0,
+        quantity : document.getElementById("quantity").value,
         color : ""
      }
     
-    if (colorObjKanap == "") {
-        alert ("Choisisser une couleur");
+    if (colorObjKanap == "") alert ("Choisisser une couleur");
+    if (objArticle.quantity == 0) {
+        alert ("Ajouter une quantité");
+        e.preventDefault();
+        document.getElementById("quantity").focus();
     }
-    if (document.getElementById("quantity").value > 100 || document.getElementById("quantity").value == 0){                
-        alert ("Quantité maximum de 100 articles et minimum de 1");            
-    }
-    if (colorObjKanap != "" && document.getElementById("quantity").value <= 100) {
+    if (colorObjKanap != "" && objArticle.quantity <= quantityMaxInput && objArticle.quantity >= quantityMinInput) {
     
         if (objInLocalStorage === null) { /* test afin de savoir si le produit existe déja dans le panier */
             
@@ -70,8 +88,7 @@ function onClickStorage () {
             objArticle.quantity = document.getElementById("quantity").value; // création d'un objet avec un id, une quantité, et une couleur            
             objArticle.color = colorObjKanap;
             let ObjToStock = JSON.stringify(objArticle); // Stockage dans le localStorage
-            localStorage.setItem ( nomObjKanap, ObjToStock);
-            
+            localStorage.setItem ( nomObjKanap, ObjToStock);            
 
         } else { /* Sinon on vient lire les données dans le panier afin d'ajouter une quantité */        
                 
@@ -80,8 +97,8 @@ function onClickStorage () {
             if (objInLocalStorageJSON.color == colorObjKanap) {             
 
                 objArticle.quantity = Number(document.getElementById("quantity").value ) + Number(objInLocalStorageJSON.quantity);
-                if (objArticle.quantity > 100) {
-                    objArticle.quantity = 100;
+                if (objArticle.quantity > quantityMaxInput) {
+                    objArticle.quantity = quantityMaxInput;
                     alert("Quantité maximum atteinte");
                 }
                 objArticle.id = idUrl;
