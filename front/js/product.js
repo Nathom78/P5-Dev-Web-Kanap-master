@@ -108,8 +108,17 @@ function onClickStorage (e) {
                 localStorage.setItem (nomObjKanap, ObjToStock);            
             }        
         }
+        /* message de confirmation d'ajout */
+        if (window.confirm(objArticle.quantity + " " + nomObjKanap + " dans votre panier :\nOK pour consulter votre panier, ANNULER pour continuer vos achats")) {
+                    window.location.href = 'cart.html';
+        
+                } /*else {
+                    window.location.href = 'index.html';        
+                }*/
+
     }
-    console.log(localStorage);    
+
+    console.table(localStorage);    
 }
 
 

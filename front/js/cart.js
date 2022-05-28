@@ -15,16 +15,14 @@ let contact = {
 function printQuantityAndPrice () {
     totalQuantityItem = 0;
     priceTotal = 0;
-    //let allQuantityElement = document.getElementsByClassName("itemQuantity");
-    //let allpriceUnitary = document.getElementsByClassName("itemPrice");
-            
+                
     for (let numberOfArticle = 0; numberOfArticle < localStorage.length ; numberOfArticle++) {
         
-        //let quantityOfOne = allQuantityElement[numberOfArticle].value;         
-        
         totalQuantityItem += quantityItem [numberOfArticle];
-        //priceTotal += priceOfOne * quantityOfOne;
+        
+        
         priceTotal += priceUnitary[numberOfArticle] * quantityItem[numberOfArticle];
+
     }
 
        
@@ -37,17 +35,21 @@ function printQuantityAndPrice () {
 // Avec Création des articles (affichage)
 // 2éme récupération des information dans l'API ( prix, image, nom)
 
+
 /* Boucle en fonction du nombre d'articles stocké dans le localStorage */
-for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {
-    
+if (localStorage.length === 0) {
+        document.getElementById('cart__items').insertAdjacentHTML('beforeend', `<p>Votre panier est vide.</p>`);
+        document.getElementById('cart__items').style.textAlign = "center";        
+    }
+for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {    
     
     // Récupération des données de l'objet du localStorage ( la paire key/valeurs )
     // avec déclaration des variables globale de la boucle et functions
 
     let nomKeyObj = localStorage.key(keyLocalStorage);
     let objKey = localStorage.getItem(nomKeyObj);
-    let objKeyJson = JSON.parse(objKey); // pour les keys id, color, et quantity.
-    quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity);
+    let objKeyJson = JSON.parse(objKey); // récuperation pour les keys id, color, et quantity.
+    quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity); // pour connaitre la quantité des articles
     
     
 
@@ -183,7 +185,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         printQuantityAndPrice ();     
     }    
 
-    products[keyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products a envoyer à l'API */
+    products[keyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products à envoyer à l'API ici juste l'id */
 
 }
 //
