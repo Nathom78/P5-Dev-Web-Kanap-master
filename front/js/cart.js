@@ -1,8 +1,3 @@
-
-let priceTotal = 0 ;
-let priceUnitary = [];
-let totalQuantityItem = 0;
-let quantityItem = [];
 let products = [];
 let contact = {
        firstName: "",
@@ -12,22 +7,45 @@ let contact = {
        email: ""
 };
 
+/* calcul et affichage du total articles et prix */
 function printQuantityAndPrice () {
+    
+    
     totalQuantityItem = 0;
-    priceTotal = 0;
+    let priceTotal = 0;
                 
     for (let numberOfArticle = 0; numberOfArticle < localStorage.length ; numberOfArticle++) {
+        let nameItem = localStorage.key(numberOfArticle);
+        let objItem = localStorage.getItem(nameItem);
+        let objItemJson = JSON.parse(objItem); /* récuperation de l'id de l'article depuis le localStorage et quantité*/
         
-        totalQuantityItem += quantityItem [numberOfArticle];
-        
-        
-        priceTotal += priceUnitary[numberOfArticle] * quantityItem[numberOfArticle];
+        totalQuantityItem += Number(objItemJson.quantity);
 
+        let urlProductToPrint = "http://localhost:3000/api/products/" + objItemJson.id;
+        /* récuperation du prix depuis l'API */
+        fetch (urlProductToPrint)
+            .then (function(res) {
+                if (res.ok) {
+                return res.json();        
+                }    
+            })
+
+            .then (function(value) {          
+            priceTotal += Number(value.price) * objItemJson.quantity; 
+            document.getElementById("totalPrice").innerText = priceTotal; /* affichage du prix total*/
+            })
+            .catch(function(err) {
+            console.log("Il y a eu un problème avec l\'opération fetch:" + err.message );
+            });        
     }
 
-       
     document.getElementById("totalQuantity").innerText = totalQuantityItem;
-    document.getElementById("totalPrice").innerText = priceTotal;  
+    if (localStorage.length === 0)  {
+        document.getElementById('cart__items').insertAdjacentHTML('beforeend', `<p>Votre panier est vide.</p>`);
+        document.getElementById('cart__items').style.textAlign = "center";
+        document.getElementById("totalPrice").innerText = 0;
+        products = [];
+    }
    
 }
 /* Affichage des articles du panier */
@@ -37,10 +55,7 @@ function printQuantityAndPrice () {
 
 
 /* Boucle en fonction du nombre d'articles stocké dans le localStorage */
-if (localStorage.length === 0) {
-        document.getElementById('cart__items').insertAdjacentHTML('beforeend', `<p>Votre panier est vide.</p>`);
-        document.getElementById('cart__items').style.textAlign = "center";        
-    }
+
 for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {    
     
     // Récupération des données de l'objet du localStorage ( la paire key/valeurs )
@@ -48,10 +63,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
 
     let nomKeyObj = localStorage.key(keyLocalStorage);
     let objKey = localStorage.getItem(nomKeyObj);
-    let objKeyJson = JSON.parse(objKey); // récuperation pour les keys id, color, et quantity.
-    quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity); // pour connaitre la quantité des articles
-    
-    
+    let objKeyJson = JSON.parse(objKey); // récuperation pour les keys id, color, et quantity.    
 
     function createByClass (classAdd, parentLien, typeCreate) {
     
@@ -134,9 +146,9 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
 
             document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] div.cart__item__content__description > p").innerHTML = "Couleur choisie: " + objKeyJson.color; /* Affichage de la couleur depuis le localstorage*/
             
-            priceUnitary[keyLocalStorage] = Number(value.price);
+            //priceUnitary[keyLocalStorage] = Number(value.price);
             
-            printQuantityAndPrice ();
+            
             })          
              
 
@@ -150,7 +162,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
     let inputChange = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] input[name='itemQuantity']");
     let quantityMaxInput = Number(inputChange.max);
     let quantityMinInput = Number(inputChange.min);
-    inputChange.addEventListener('change', updateValue);
+    inputChange.addEventListener('change', updateValue());
 
     function updateValue () {
                         
@@ -165,9 +177,7 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         /* mise à jour du localstorage */
         objKeyJson.quantity = inputChange.value;
         let ObjModify = JSON.stringify(objKeyJson);
-        localStorage.setItem(nomKeyObj, ObjModify);
-
-        quantityItem[keyLocalStorage]  = Number(objKeyJson.quantity); /* Mise à jour de la quantity affiché */
+        localStorage.setItem(nomKeyObj, ObjModify);        
         printQuantityAndPrice ();         
     }
 
@@ -179,15 +189,18 @@ for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalSto
         let articleToDelete = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"']");
         document.getElementById("cart__items").removeChild(articleToDelete);
         localStorage.removeItem(nomKeyObj);
-        quantityItem.splice(keyLocalStorage,1);        
-        priceUnitary.splice(keyLocalStorage,1);
-        
-        printQuantityAndPrice ();     
+        //quantityItem.splice(keyLocalStorage,1);        
+        //priceUnitary.splice(keyLocalStorage,1);
+        products.splice(keyLocalStorage,1);
+        printQuantityAndPrice ();    
     }    
 
     products[keyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products à envoyer à l'API ici juste l'id */
 
 }
+
+printQuantityAndPrice ();
+
 //
 /* 4éme étape remplir les champs des formulaires */ 
 //
