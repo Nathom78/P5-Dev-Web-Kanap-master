@@ -112,9 +112,9 @@ function onClickStorage (e) {
         if (window.confirm(objArticle.quantity + " " + nomObjKanap + " dans votre panier :\nOK pour consulter votre panier, ANNULER pour continuer vos achats")) {
                     window.location.href = 'cart.html';
         
-                } /*else {
+                } else {
                     window.location.href = 'index.html';        
-                }*/
+                }
 
     }
 
