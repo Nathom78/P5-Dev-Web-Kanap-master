@@ -32,11 +32,8 @@ fetch (urlProduct)
         document.getElementById("description").textContent = value.description; /* Affichage de la description */
 
         let colorOption = document.getElementById("colors"); /* Mise en liste des différentes couleurs en stock */ 
-        for  (let color of value.colors) {
-            colorOption.options[colorOption.options.length] = new Option (color);
-        }
-        })
-
+        for  (let color of value.colors) colorOption.options[colorOption.options.length] = new Option (color);
+    })
     .catch(function(err) {
         console.log("Il y a eu un problème avec l\'opération fetch:" + err.message );
     });
@@ -72,7 +69,7 @@ function onClickStorage (e) {
         id : "",
         quantity : document.getElementById("quantity").value,
         color : ""
-     }
+    }
     
     if (colorObjKanap == "") alert ("Choisisser une couleur");
     if (objArticle.quantity == 0) {
@@ -110,11 +107,10 @@ function onClickStorage (e) {
         }
         /* message de confirmation d'ajout */
         if (window.confirm(objArticle.quantity + " " + nomObjKanap + " dans votre panier :\nOK pour consulter votre panier, ANNULER pour continuer vos achats")) {
-                    window.location.href = 'cart.html';
-        
-                } else {
-                    window.location.href = 'index.html';        
-                }
+            window.location.href = 'cart.html';        
+        } /*else {
+            window.location.href = 'index.html';      
+        }*/
 
     }
 
