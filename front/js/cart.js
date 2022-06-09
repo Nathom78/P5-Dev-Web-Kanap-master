@@ -1,7 +1,6 @@
 let priceUnitary = [];
-
-let products = [];
-let contact = {
+let products = []; /* Tableaux d'Id pour le POST final */
+let contact = {  /* objet à envoyer dans le POST final */
     firstName: "",
     lastName: "",
     address: "",
@@ -12,13 +11,14 @@ let contact = {
 /* calcul et affichage du total articles et prix */
 function printQuantityAndPrice () {    
     
-    totalQuantityItem = 0;
+    let totalQuantityItem = 0;
     let priceTotal = 0;
     
     if (localStorage.length === 0)  {
         document.getElementById('cart__items').insertAdjacentHTML('beforeend', `<p>Votre panier est vide.</p>`);
         document.getElementById('cart__items').style.textAlign = "center";
         document.getElementById("totalPrice").innerText = 0;
+        document.getElementById("totalQuantity").innerText = 0;
         products = [];
         return;
     }  
@@ -34,12 +34,11 @@ function printQuantityAndPrice () {
 
     document.getElementById("totalPrice").innerText = priceTotal; /* affichage du prix total*/
     document.getElementById("totalQuantity").innerText = totalQuantityItem; /* Affichage de la quantité total */
-    
-    
 }
 
+/* Fonction qui permet d'ajouter un enfant dans le html, en ajoutant ue class ou non, par le lien du parent, et le type de l'enfant - pour un gain de place dans le programme*/
 function createByClass (classAdd, parentLien, typeCreate, numberOfTheArticle) {
-    /* Fonction qui permet d'ajouter un enfant dans le html, en ajoutant ue class ou non, par le lien du parent, et le type de l'enfant - pour un gain de place dans le programme*/
+    
     let elt = document.createElement(typeCreate);
     let eltPutIn = document.getElementsByClassName(parentLien);    
     if (classAdd !== '') { 
@@ -48,66 +47,48 @@ function createByClass (classAdd, parentLien, typeCreate, numberOfTheArticle) {
     eltPutIn[numberOfTheArticle].appendChild(elt);     
 }
 
-function updateValue () {   
-    for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {
-        
-        let nomKeyObj = localStorage.key(keyLocalStorage); /* récupération du nom de l'article ( key )*/
-        let objKey = localStorage.getItem(nomKeyObj);
-        let objKeyJson = JSON.parse(objKey);
-
-        let inputChange = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] input[name='itemQuantity']");
-        let quantityMaxInput = Number(inputChange.max);
-        let quantityMinInput = Number(inputChange.min);       
-
-        inputChange.addEventListener('change', function(){
-            if (inputChange.value < quantityMinInput) {
-                inputChange.value = quantityMinInput;
-                alert ("Quantité minimum de "+quantityMinInput+" articles");
-            }
-            if (inputChange.value > quantityMaxInput ) { 
-                inputChange.value = quantityMaxInput;
-                alert ("Quantité maximum de "+quantityMaxInput+" articles");
-            }
-            /* mise à jour du localstorage */
-            objKeyJson.quantity = inputChange.value;
-            let ObjModify = JSON.stringify(objKeyJson);
-            localStorage.setItem(nomKeyObj, ObjModify);
-            printQuantityAndPrice ();   
-        });    
-    }           
+/* fonction de mise à jour de la quantité dans le html et le localStorage */
+function updateValue (el,objKeyJson,nomKeyObj) {   
+    
+    let quantityMaxInput = Number(el.max);
+    let quantityMinInput = Number(el.min);       
+    
+    if (el.value < quantityMinInput) {
+        el.value = quantityMinInput;
+        alert ("Quantité minimum de "+quantityMinInput+" articles");
+    }
+    if (el.value > quantityMaxInput ) { 
+        el.value = quantityMaxInput;
+        alert ("Quantité maximum de "+quantityMaxInput+" articles");
+    }
+    /* mise à jour du localstorage */
+    objKeyJson.quantity = el.value;
+    let ObjModify = JSON.stringify(objKeyJson);
+    localStorage.setItem(nomKeyObj, ObjModify);
+    printQuantityAndPrice ();              
 }
 
-function deleteArticle () {
+// Enléve un article depuis le html et du localstorage
+function buttonDeleteArticle (articleToDelete, numKeyLocalStorage, nomKeyObj) {
 
-    for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {
-        
-        let nomKeyObj = localStorage.key(keyLocalStorage); /* récupération du nom de l'article ( key )*/
-        let objKey = localStorage.getItem(nomKeyObj); /* besoin de l'id de l'article */
-        let objKeyJson = JSON.parse(objKey);    
-        
-        let boutonToDelete = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] p.deleteItem");
-        boutonToDelete.addEventListener('click', function() {
-            let articleToDelete = document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"']");
-            document.getElementById("cart__items").removeChild(articleToDelete);
-            localStorage.removeItem(nomKeyObj);
-            //quantityItem.splice(keyLocalStorage,1);        
-            priceUnitary.splice(keyLocalStorage,1);
-            products.splice(keyLocalStorage,1);
-            printQuantityAndPrice ();    
-        });
-    }         
+    document.getElementById("cart__items").removeChild(articleToDelete);
+    localStorage.removeItem(nomKeyObj);         
+    priceUnitary.splice(numKeyLocalStorage,1);
+    products.splice(numKeyLocalStorage,1);
+    printQuantityAndPrice ();    
 }    
 
+// Affichage des articles 
 function displayBasket () {
-    for (let keyLocalStorage = 0; keyLocalStorage < localStorage.length; keyLocalStorage++) {    
+    for (let numKeyLocalStorage = 0; numKeyLocalStorage < localStorage.length; numKeyLocalStorage++) {    
     
         // Récupération des données de l'objet du localStorage ( la paire key/valeurs )    
     
-        let nomKeyObj = localStorage.key(keyLocalStorage); /* récupération du nom de l'article ( key )*/
+        let nomKeyObj = localStorage.key(numKeyLocalStorage); /* récupération du nom de l'article ( key )*/
         let objKey = localStorage.getItem(nomKeyObj);
         let objKeyJson = JSON.parse(objKey); // récuperation pour les keys les valeurs id, color, et quantity.    
         
-        // début de la boucle pour la création (insertion) dans le html de l'article
+        // 1ér début de la boucle pour la création (insertion) dans le html de l'article
     
         let sectionCartItem = document.getElementById('cart__items');
         let article = document.createElement ('article');
@@ -116,17 +97,18 @@ function displayBasket () {
         article.setAttribute("data-color", objKeyJson.color);
         sectionCartItem.appendChild(article);  /* Création de l'article */        
         
-        createByClass ("cart__item__img", "cart__item", "div", keyLocalStorage);   /* ajoute un élement enfant html avec une class, le nom de la class (unique) du parent, et le type de l'élement */
-        createByClass ('cart__item__content', 'cart__item', 'div', keyLocalStorage);    
-        createByClass ('cart__item__content__description', 'cart__item__content', 'div', keyLocalStorage); 
-        createByClass ('', 'cart__item__content__description', 'h2', keyLocalStorage);  /* sans class ajouté */
-        createByClass ('', 'cart__item__content__description', 'p', keyLocalStorage);                                            
-        createByClass ('itemPrice', 'cart__item__content__description', 'p', keyLocalStorage);                                            
-        createByClass ('cart__item__content__settings', 'cart__item__content', 'div', keyLocalStorage);                      
-        createByClass ('cart__item__content__settings__quantity', 'cart__item__content__settings', 'div', keyLocalStorage);      
-        createByClass ('', 'cart__item__content__settings__quantity', 'p', keyLocalStorage);                                         
+        createByClass ("cart__item__img", "cart__item", "div", numKeyLocalStorage);   /* ajoute un élement enfant html avec une class, le nom de la class (unique) du parent, et le type de l'élement */
+        createByClass ('cart__item__content', 'cart__item', 'div', numKeyLocalStorage);    
+        createByClass ('cart__item__content__description', 'cart__item__content', 'div', numKeyLocalStorage); 
+        createByClass ('', 'cart__item__content__description', 'h2', numKeyLocalStorage);  /* sans class ajouté */
+        createByClass ('', 'cart__item__content__description', 'p', numKeyLocalStorage);                                            
+        createByClass ('itemPrice', 'cart__item__content__description', 'p', numKeyLocalStorage);                                            
+        createByClass ('cart__item__content__settings', 'cart__item__content', 'div', numKeyLocalStorage);                      
+        createByClass ('cart__item__content__settings__quantity', 'cart__item__content__settings', 'div', numKeyLocalStorage);      
+        createByClass ('', 'cart__item__content__settings__quantity', 'p', numKeyLocalStorage);                                         
         
-        let pointingForInput = document.getElementsByClassName('cart__item__content__settings__quantity', keyLocalStorage);      
+        let pointingForInput = document.getElementsByClassName('cart__item__content__settings__quantity');      
+        pointingForInput[numKeyLocalStorage].firstChild.innerText = "Qté";
         let quantityInput = document.createElement('input');
         quantityInput.classList.add('itemQuantity');
         quantityInput.setAttribute('name', 'itemQuantity');
@@ -134,15 +116,21 @@ function displayBasket () {
         quantityInput.setAttribute('min', 1);
         quantityInput.setAttribute('max', 100);
         quantityInput.setAttribute("value", objKeyJson.quantity);  /* Affichage de la quantity depuis le localStorage */
-        pointingForInput[keyLocalStorage].appendChild(quantityInput);  
-        
-        createByClass ('cart__item__content__settings__delete', 'cart__item__content__settings', 'div', keyLocalStorage);        
+        pointingForInput[numKeyLocalStorage].appendChild(quantityInput).addEventListener('change', function(e) {
+            updateValue(this,objKeyJson,nomKeyObj);
+        });// Création de l'évenement changement de la valeur Input        
+                        
+        createByClass ('cart__item__content__settings__delete', 'cart__item__content__settings', 'div', numKeyLocalStorage);        
         let divItemDelete = document.getElementsByClassName('cart__item__content__settings__delete');
         let pDelete = document.createElement('p');
         pDelete.textContent = 'Supprimer';
         pDelete.classList.add('deleteItem');
-        divItemDelete[keyLocalStorage].appendChild(pDelete);/* Affichage "bt" delete */
-    
+        let articleToDelete = divItemDelete[numKeyLocalStorage].closest('article');
+        divItemDelete[numKeyLocalStorage].appendChild(pDelete).addEventListener('click', function () {
+            buttonDeleteArticle (articleToDelete, numKeyLocalStorage, nomKeyObj)
+        });/* Affichage "bt" delete avec évenement click */
+                
+        
         // 2éme étapes - récuperation des informations du produit dans l'API et affichage des differentes valeurs (nom, prix, couleur) dans la div content description 
     
         let urlProduct = "http://localhost:3000/api/products/" + objKeyJson.id;        
@@ -166,29 +154,25 @@ function displayBasket () {
     
                 document.querySelector("article[data-id='"+objKeyJson.id+"'][data-color='"+objKeyJson.color+"'] div.cart__item__content__description > p").innerHTML = "Couleur choisie: " + objKeyJson.color; /* Affichage de la couleur depuis le localstorage*/
                 
-                priceUnitary[keyLocalStorage] = Number(kanap.price);
+                priceUnitary[numKeyLocalStorage] = Number(kanap.price);
                 printQuantityAndPrice ();        
             })          
     
             .catch(function(err) {
                 console.log("Il y a eu un problème avec l\'opération fetch:" + err.message );
         });    
-    
-        products[keyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products à envoyer à l'API ici juste l'id */
+        
+        products[numKeyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products à envoyer à l'API ici juste l'id */
     }    
 }
 // **************************
 // ***  Corp du programme ***
 
-displayBasket ();
+if (localStorage.length > 0) displayBasket ();
 printQuantityAndPrice ();
-/* 3émes étapes modifications des articles et suppression */
-updateValue(); /* avec création des évenements pour les inputs */
-deleteArticle (); /* avec création des evenements pour le bouton supprimer */ 
-
 
 //
-/* 4éme étape remplir les champs des formulaires */ 
+/* 3éme étape remplir les champs des formulaires */ 
 //
 
 /* function qui change la première lettre en majuscule */
@@ -277,7 +261,7 @@ function validateemail (e){
     let valid = maskLetter.test(contentForm);
 
     if (!valid) {        
-        eltForPrint.innerText = "Veuillez entrer un Email valide";
+        eltForPrint.innerText = "Veuillez entrer un Email valide";        
     } else {
         eltForPrint.innerText = "";
         contact.email = String(e.target.value); /* création de la clé email de l'objet contact */
@@ -291,39 +275,36 @@ buttonSubmit.addEventListener('click', onClickSend)
 function onClickSend (e) {
     e.preventDefault();
     /* test qu'il y ai tous les champs et au moins un produit dans le panier */
-    if (contact.firstName != "" 
+    if (products.length == 0) {
+        alert("Vous devez avoir au moins un article !");
+        return;
+    }
+    if (!(contact.firstName != "" 
         && contact.lastName != ""
         && contact.address != "" 
         && contact.city != ""
-        && contact.email != ""
-        && products.length !== 0
-        ) {
-        /* POST à l'API avec envoie de l'objet order( contact + products ) avec récupération de la réponse orderId*/             
-        let order = {contact,products};
-        let orderJSON = JSON.stringify(order);        
-
-        fetch("http://localhost:3000/api/products/order", {
-            method: "POST",
-            headers: {        
-            'Content-Type': 'application/json'
-            },
-            body: orderJSON
-        })
-        .then(function(res) {
-            if (res.ok) {
-            return res.json();
-            }
-        })
-        .then(function(value) {
-            console.log(value);
-            document.location.href = 'confirmation.html?orderId=' + value.orderId /* ouverture de la page confirmation */
-        });
-    } else {
-        
-        if (products.length !== 0) {
-            alert("Vous devez renseigner tous les champs !");
-        } else {
-            alert("Vous devez avoir au moins un article !");
-        }                   
+        && contact.email != "")) { 
+            
+        alert("Vous devez renseigner tous les champs !");           
+        return;            
     }          
+    /* POST à l'API avec envoie de l'objet order( contact + products ) avec récupération de la réponse orderId*/             
+    let order = {contact,products};
+    let orderJSON = JSON.stringify(order);        
+
+    fetch("http://localhost:3000/api/products/order", {
+        method: "POST",
+        headers: {        
+        'Content-Type': 'application/json'
+        },
+        body: orderJSON
+    })
+    .then(function(res) {
+        if (res.ok) {
+        return res.json();
+        }
+    })
+    .then(function(value) {        
+        document.location.href = 'confirmation.html?orderId=' + value.orderId /* ouverture de la page confirmation */
+    });                    
 }

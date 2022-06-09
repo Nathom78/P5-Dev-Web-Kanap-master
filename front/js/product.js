@@ -71,12 +71,17 @@ function onClickStorage (e) {
         color : ""
     }
     
-    if (colorObjKanap == "") alert ("Choisisser une couleur");
+    if (colorObjKanap == "") {
+        alert ("Choisisser une couleur");
+        return;
+    }
     if (objArticle.quantity == 0) {
         alert ("Ajouter une quantité");
         e.preventDefault();
         document.getElementById("quantity").focus();
+        return;
     }
+
     if (colorObjKanap != "" && objArticle.quantity <= quantityMaxInput && objArticle.quantity >= quantityMinInput) {
     
         if (objInLocalStorage === null) { /* test afin de savoir si le produit existe déja dans le panier */
@@ -108,13 +113,8 @@ function onClickStorage (e) {
         /* message de confirmation d'ajout */
         if (window.confirm(objArticle.quantity + " " + nomObjKanap + " dans votre panier :\nOK pour consulter votre panier, ANNULER pour continuer vos achats")) {
             window.location.href = 'cart.html';        
-        } /*else {
-            window.location.href = 'index.html';      
-        }*/
-
-    }
-
-    console.table(localStorage);    
+        } 
+    }   
 }
 
 
