@@ -116,6 +116,7 @@ function displayBasket () {
         quantityInput.setAttribute('min', 1);
         quantityInput.setAttribute('max', 100);
         quantityInput.setAttribute("value", objKeyJson.quantity);  /* Affichage de la quantity depuis le localStorage */
+        
         pointingForInput[numKeyLocalStorage].appendChild(quantityInput).addEventListener('change', function(e) {
             updateValue(this,objKeyJson,nomKeyObj);
         });// Création de l'évenement changement de la valeur Input        
@@ -126,6 +127,7 @@ function displayBasket () {
         pDelete.textContent = 'Supprimer';
         pDelete.classList.add('deleteItem');
         let articleToDelete = divItemDelete[numKeyLocalStorage].closest('article');
+        
         divItemDelete[numKeyLocalStorage].appendChild(pDelete).addEventListener('click', function () {
             buttonDeleteArticle (articleToDelete, numKeyLocalStorage, nomKeyObj)
         });/* Affichage "bt" delete avec évenement click */
@@ -162,7 +164,7 @@ function displayBasket () {
                 console.log("Il y a eu un problème avec l\'opération fetch:" + err.message );
         });    
         
-        products[numKeyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products à envoyer à l'API ici juste l'id */
+        products[numKeyLocalStorage] = String(objKeyJson.id); /* stockage de la variable products à envoyer à l'API, pour la commande, ici juste l'id */
     }    
 }
 // **************************
